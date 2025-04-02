@@ -1,0 +1,172 @@
+/**
+ * 分类页面特定样式
+ */
+
+/* 分类容器 */
+.categories-container {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 30px;
+}
+
+/* 分类列表 */
+.category-list {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 20px;
+}
+
+.category-list ul li {
+    margin-bottom: 10px;
+}
+
+.category-list ul li a {
+    display: block;
+    padding: 10px 15px;
+    border-radius: 4px;
+    color: #555;
+    transition: all 0.3s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.category-list ul li a:hover {
+    background-color: #f0f7ff;
+    color: #0066cc;
+}
+
+.category-list ul li a.active {
+    background-color: #e6f2ff;
+    color: #0066cc;
+    font-weight: 500;
+}
+
+.category-count {
+    color: #888;
+    font-size: 13px;
+    font-weight: normal;
+}
+
+/* 分类游戏区域 */
+.category-games {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.category-games h3 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+/* 分类筛选器 */
+.category-filter {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 25px;
+}
+
+#game-search {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 15px;
+    margin-right: 15px;
+    transition: border-color 0.3s;
+}
+
+#game-search:focus {
+    border-color: #0066cc;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1);
+}
+
+#sort-games {
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fff;
+    font-size: 15px;
+    cursor: pointer;
+    transition: border-color 0.3s;
+}
+
+#sort-games:focus {
+    border-color: #0066cc;
+    outline: none;
+}
+
+/* 错误消息和无游戏提示 */
+.error-message, .no-games {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+.error-message {
+    color: #e74c3c;
+    border-left: 4px solid #e74c3c;
+}
+
+.no-games {
+    font-style: italic;
+    border-left: 4px solid #ddd;
+}
+
+/* 响应式调整 */
+@media (max-width: 900px) {
+    .categories-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .category-list {
+        margin-bottom: 20px;
+        position: static;
+    }
+    
+    .category-list ul {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    
+    .category-list ul li {
+        margin-right: 10px;
+        margin-bottom: 10px;
+    }
+}
+
+@media (max-width: 600px) {
+    .category-filter {
+        flex-direction: column;
+    }
+    
+    #game-search {
+        margin-right: 0;
+        margin-bottom: 15px;
+    }
+    
+    .category-list ul li a {
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+    
+    .category-games h3 {
+        font-size: 20px;
+    }
+    
+    .category-count {
+        font-size: 12px;
+    }
+} 

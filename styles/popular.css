@@ -1,0 +1,77 @@
+/**
+ * 热门游戏页面特定样式
+ */
+
+/* 标签按钮 */
+.popular-tabs {
+    display: flex;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #eee;
+}
+
+.tab-btn {
+    padding: 12px 20px;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    margin-right: 15px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.tab-btn:hover {
+    color: #0066cc;
+}
+
+.tab-btn.active {
+    color: #0066cc;
+    border-bottom-color: #0066cc;
+}
+
+/* 标签内容 */
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* 游戏网格 */
+.popular-games .game-grid {
+    margin-top: 20px;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .popular-tabs {
+        flex-wrap: wrap;
+    }
+    
+    .tab-btn {
+        padding: 10px 15px;
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .popular-tabs {
+        flex-direction: column;
+        border-bottom: none;
+    }
+    
+    .tab-btn {
+        margin-right: 0;
+        margin-bottom: 10px;
+        border: 1px solid #eee;
+        border-radius: 4px;
+    }
+    
+    .tab-btn.active {
+        border: 1px solid #0066cc;
+        background-color: #e6f2ff;
+    }
+} 

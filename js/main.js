@@ -1,42 +1,42 @@
 /**
- * 首页JavaScript文件
- * 处理首页游戏展示
+ * Homepage JavaScript file
+ * Handles homepage game display
  */
 document.addEventListener('DOMContentLoaded', function() {
-    // 获取游戏展示容器
+    // Get game display containers
     const gameContainers = document.querySelectorAll('.game-grid');
     
-    // 记录图片加载失败
+    // Track image load errors
     let imgLoadErrors = 0;
     
-    // 加载精选游戏
+    // Load featured games
     const featuredGames = getFeaturedGames();
     if (gameContainers[0]) {
         loadGames(gameContainers[0], featuredGames);
     }
     
-    // 加载最新游戏
+    // Load newest games
     const newestGames = getNewestGames();
     if (gameContainers[1]) {
         loadGames(gameContainers[1], newestGames);
     }
     
     /**
-     * 在容器中加载游戏列表
-     * @param {Element} container 容器元素
-     * @param {Array} games 游戏数组
+     * Load game list in container
+     * @param {Element} container Container element
+     * @param {Array} games Games array
      */
     function loadGames(container, games) {
-        // 清空容器
+        // Clear container
         container.innerHTML = '';
         
-        // 检查是否有游戏
+        // Check if there are games
         if (games.length === 0) {
-            container.innerHTML = '<p class="no-games">暂无游戏</p>';
+            container.innerHTML = '<p class="no-games">No games available</p>';
             return;
         }
         
-        // 创建游戏卡片
+        // Create game cards
         games.forEach(game => {
             const gameCard = createGameCard(game);
             container.appendChild(gameCard);
@@ -44,21 +44,21 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     /**
-     * 创建游戏卡片元素
-     * @param {Object} game 游戏对象
-     * @returns {Element} 游戏卡片元素
+     * Create game card element
+     * @param {Object} game Game object
+     * @returns {Element} Game card element
      */
     function createGameCard(game) {
         const card = document.createElement('div');
         card.className = 'game-card';
         card.setAttribute('data-id', game.id);
         
-        // 构建卡片HTML
+        // Build card HTML
         card.innerHTML = `
             <div class="game-thumbnail">
                 <img src="${game.thumbnail}" alt="${game.name}" onerror="this.src='images/placeholder.jpg'">
                 <div class="game-overlay">
-                    <a href="game.html?id=${game.id}" class="play-btn">开始游戏</a>
+                    <a href="game.html?id=${game.id}" class="play-btn">Play Now</a>
                 </div>
             </div>
             <div class="game-info">
@@ -67,27 +67,35 @@ document.addEventListener('DOMContentLoaded', function() {
                     <span class="game-category">${game.category}</span>
                     <span class="game-rating">★ ${game.rating.toFixed(1)}</span>
                 </div>
+                <div class="social-actions">
+                    <button class="like-btn" data-id="${game.id}">
+                        <i>♡</i> <span class="like-count">${game.likes}</span>
+                    </button>
+                    <button class="share-btn" data-id="${game.id}">
+                        <i>↗</i> Share
+                    </button>
+                </div>
             </div>
         `;
         
-        // 监听图片加载失败
+        // Monitor image load failure
         const img = card.querySelector('img');
         img.addEventListener('error', function() {
             imgLoadErrors++;
-            console.log(`图片加载失败: ${game.thumbnail}`);
+            console.log(`Image load failed: ${game.thumbnail}`);
             this.src = 'images/placeholder.jpg';
             
-            // 如果图片加载错误过多，显示提示
+            // If too many image load errors, show a warning
             if (imgLoadErrors > 3) {
                 const warningElement = document.createElement('div');
                 warningElement.className = 'img-load-warning';
-                warningElement.textContent = '部分游戏图片加载失败，请检查图片路径';
+                warningElement.textContent = 'Some game images failed to load. Please check image paths.';
                 
-                // 只添加一次警告
+                // Only add the warning once
                 if (!document.querySelector('.img-load-warning')) {
                     document.querySelector('main').prepend(warningElement);
                     
-                    // 5秒后自动隐藏
+                    // Auto-hide after 5 seconds
                     setTimeout(() => {
                         warningElement.style.opacity = '0';
                         setTimeout(() => warningElement.remove(), 1000);
@@ -96,13 +104,54 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // 添加点击事件
+        // Add click event
         card.addEventListener('click', function(e) {
-            // 如果点击的不是"开始游戏"按钮，则整个卡片可点击
-            if (!e.target.classList.contains('play-btn')) {
+            // Check if the click was on a social button or its child
+            const isOnSocialButton = e.target.closest('.like-btn') || e.target.closest('.share-btn');
+            
+            // If not clicking on the play button or social buttons, make the whole card clickable
+            if (!e.target.classList.contains('play-btn') && !isOnSocialButton) {
                 window.location.href = `game.html?id=${game.id}`;
             }
         });
+        
+        // Add specific click handlers for social buttons 
+        const likeBtn = card.querySelector('.like-btn');
+        const shareBtn = card.querySelector('.share-btn');
+        
+        if (likeBtn) {
+            likeBtn.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent card click
+                const gameId = this.getAttribute('data-id');
+                
+                // Toggle like state
+                const isLiked = likeGame(gameId);
+                
+                // Update button state
+                updateLikeButtonState(this, gameId);
+                
+                // Add animation
+                this.classList.add('liked-animation');
+                setTimeout(() => {
+                    this.classList.remove('liked-animation');
+                }, 700);
+            });
+            
+            // 确保点赞按钮显示正确的状态
+            updateLikeButtonState(likeBtn, game.id);
+        }
+        
+        if (shareBtn) {
+            shareBtn.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent card click
+                const gameId = this.getAttribute('data-id');
+                const game = getGameById(gameId);
+                
+                if (game) {
+                    openShareModal(game);
+                }
+            });
+        }
         
         return card;
     }

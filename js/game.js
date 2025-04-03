@@ -1,160 +1,160 @@
 /**
- * 游戏页面JavaScript文件
- * 处理游戏加载和展示逻辑
+ * Game page JavaScript file
+ * Handles game loading and display logic
  */
 document.addEventListener('DOMContentLoaded', function() {
-    // 获取URL中的游戏ID
+    // Get game ID from URL
     const urlParams = new URLSearchParams(window.location.search);
     const gameId = urlParams.get('id');
     
-    // 如果没有游戏ID，重定向到首页
+    // If no game ID, redirect to homepage
     if (!gameId) {
         window.location.href = 'index.html';
         return;
     }
     
-    // 获取游戏信息
+    // Get game information
     const game = getGameById(gameId);
     
-    // 如果游戏不存在，重定向到首页
+    // If game doesn't exist, redirect to homepage
     if (!game) {
         window.location.href = 'index.html';
         return;
     }
     
-    // 更新页面标题
-    document.title = `${game.name} - 游戏集锦`;
+    // Update page title
+    document.title = `${game.name} - Game Collection`;
     
-    // 更新游戏信息
+    // Update game information
     updateGameInfo(game);
     
-    // 加载游戏iframe
+    // Load game iframe
     loadGameIframe(game);
     
-    // 加载相关游戏
+    // Load related games
     loadRelatedGames(game);
     
-    // 设置全屏按钮事件
+    // Set up fullscreen button event
     setupFullscreenButton();
     
-    // 设置收藏按钮事件
-    setupFavoriteButton(game);
+    // Set up social buttons
+    setupSocialButtons(game);
     
     /**
-     * 更新游戏信息
-     * @param {Object} game 游戏对象
+     * Update game information
+     * @param {Object} game Game object
      */
     function updateGameInfo(game) {
         document.getElementById('game-title').textContent = game.name;
         document.getElementById('game-description').textContent = game.description;
         document.getElementById('game-category').textContent = game.category;
-        document.getElementById('game-rating').textContent = `评分: ${game.rating.toFixed(1)}/5`;
+        document.getElementById('game-rating').textContent = `Rating: ${game.rating.toFixed(1)}/5`;
     }
     
     /**
-     * 加载游戏iframe
-     * @param {Object} game 游戏对象
+     * Load game iframe
+     * @param {Object} game Game object
      */
     function loadGameIframe(game) {
         const iframe = document.getElementById('game-frame');
         const frameContainer = document.querySelector('.game-frame-container');
         
-        // 显示加载中提示
+        // Show loading prompt
         const loadingDiv = document.createElement('div');
         loadingDiv.className = 'game-loading';
-        loadingDiv.innerHTML = '<p>游戏加载中...</p>';
+        loadingDiv.innerHTML = '<p>Loading game...</p>';
         frameContainer.appendChild(loadingDiv);
         
-        // 设置iframe的src属性
+        // Set iframe src attribute
         iframe.src = game.url;
         
-        // 对于外部链接，添加额外的安全属性
+        // For external links, add extra security attributes
         if (game.url.startsWith('http')) {
             iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups');
             iframe.setAttribute('allow', 'autoplay; fullscreen; microphone; camera; payment');
             
-            // 添加提示信息
+            // Add prompt information
             const gameContainer = document.querySelector('.game-container');
             const externalInfo = document.createElement('div');
             externalInfo.className = 'external-info';
-            externalInfo.innerHTML = '<p>此游戏由外部平台提供。如果游戏无法正常加载，请尝试点击<a href="' + game.url + '" target="_blank">这里</a>在新窗口中打开。</p>';
+            externalInfo.innerHTML = '<p>This game is provided by an external platform. If the game does not load properly, please try clicking <a href="' + game.url + '" target="_blank">here</a> to open in a new window.</p>';
             
-            // 在iframe上方插入信息
+            // Insert information above iframe
             gameContainer.insertBefore(externalInfo, document.querySelector('.game-frame-container'));
         }
         
-        // 监听iframe加载事件
+        // Listen for iframe load event
         iframe.onload = function() {
-            // 移除加载中提示
+            // Remove loading prompt
             if (loadingDiv.parentNode) {
                 loadingDiv.parentNode.removeChild(loadingDiv);
             }
         };
         
-        // 监听iframe加载错误
+        // Listen for iframe load error
         iframe.onerror = function() {
             handleIframeError(game, frameContainer, loadingDiv);
         };
         
-        // 设置超时处理，以防iframe加载太久
+        // Set timeout handling in case iframe takes too long to load
         setTimeout(function() {
             if (document.querySelector('.game-loading')) {
                 handleIframeError(game, frameContainer, loadingDiv);
             }
-        }, 10000); // 10秒后检查
+        }, 10000); // Check after 10 seconds
     }
     
     /**
-     * 处理iframe加载错误
-     * @param {Object} game 游戏对象
-     * @param {Element} container iframe容器
-     * @param {Element} loadingDiv 加载提示元素
+     * Handle iframe load error
+     * @param {Object} game Game object
+     * @param {Element} container iframe container
+     * @param {Element} loadingDiv Loading prompt element
      */
     function handleIframeError(game, container, loadingDiv) {
-        // 移除加载中提示
+        // Remove loading prompt
         if (loadingDiv.parentNode) {
             loadingDiv.parentNode.removeChild(loadingDiv);
         }
         
-        // 创建错误提示
+        // Create error prompt
         const errorDiv = document.createElement('div');
         errorDiv.className = 'game-error';
         errorDiv.innerHTML = `
-            <h3>游戏加载失败</h3>
-            <p>很抱歉，游戏无法正常加载。请尝试以下方法：</p>
+            <h3>Game Failed to Load</h3>
+            <p>Sorry, the game could not be loaded properly. Please try the following methods:</p>
             <ul>
-                <li>刷新页面重试</li>
-                <li><a href="${game.url}" target="_blank">在新窗口中直接打开游戏</a></li>
-                <li>检查您的网络连接</li>
+                <li>Refresh the page and try again</li>
+                <li><a href="${game.url}" target="_blank">Open the game directly in a new window</a></li>
+                <li>Check your network connection</li>
             </ul>
         `;
         
-        // 显示错误提示
+        // Display error prompt
         container.appendChild(errorDiv);
     }
     
     /**
-     * 加载相关游戏
-     * @param {Object} game 游戏对象
+     * Load related games
+     * @param {Object} game Game object
      */
     function loadRelatedGames(game) {
-        // 获取相同类别的游戏，排除当前游戏
+        // Get games in the same category, excluding the current game
         const categoryGames = getGamesByCategory(game.category)
             .filter(g => g.id !== game.id)
-            .slice(0, 4); // 最多显示4个相关游戏
+            .slice(0, 4); // Show at most 4 related games
         
         const relatedContainer = document.querySelector('.related-games .game-grid');
         
-        // 清空容器
+        // Clear container
         relatedContainer.innerHTML = '';
         
-        // 检查是否有相关游戏
+        // Check if there are related games
         if (categoryGames.length === 0) {
-            relatedContainer.innerHTML = '<p class="no-games">暂无相关游戏</p>';
+            relatedContainer.innerHTML = '<p class="no-games">No related games available</p>';
             return;
         }
         
-        // 创建相关游戏卡片
+        // Create related game cards
         categoryGames.forEach(relatedGame => {
             const gameCard = createGameCard(relatedGame);
             relatedContainer.appendChild(gameCard);
@@ -162,21 +162,21 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     /**
-     * 创建游戏卡片元素
-     * @param {Object} game 游戏对象
-     * @returns {Element} 游戏卡片元素
+     * Create game card element
+     * @param {Object} game Game object
+     * @returns {Element} Game card element
      */
     function createGameCard(game) {
         const card = document.createElement('div');
         card.className = 'game-card small';
         card.setAttribute('data-id', game.id);
         
-        // 构建卡片HTML
+        // Build card HTML
         card.innerHTML = `
             <div class="game-thumbnail">
                 <img src="${game.thumbnail}" alt="${game.name}" onerror="this.src='images/placeholder.jpg'">
                 <div class="game-overlay">
-                    <a href="game.html?id=${game.id}" class="play-btn">开始游戏</a>
+                    <a href="game.html?id=${game.id}" class="play-btn">Play Now</a>
                 </div>
             </div>
             <div class="game-info">
@@ -184,19 +184,73 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="game-meta">
                     <span class="game-category">${game.category}</span>
                 </div>
+                <div class="social-actions">
+                    <button class="like-btn" data-id="${game.id}">
+                        <i>♡</i> <span class="like-count">${game.likes}</span>
+                    </button>
+                    <button class="share-btn" data-id="${game.id}">
+                        <i>↗</i> Share
+                    </button>
+                </div>
             </div>
         `;
         
-        // 添加点击事件
-        card.addEventListener('click', function() {
-            window.location.href = `game.html?id=${game.id}`;
-        });
+        // Add click event using capture phase to ensure event delegation works correctly
+        card.addEventListener('click', function(e) {
+            // Check if the click was on a social button or its child
+            const isOnSocialButton = e.target.closest('.like-btn') || e.target.closest('.share-btn');
+            
+            // If not clicking on the play button or social buttons, make the whole card clickable
+            if (!e.target.classList.contains('play-btn') && !isOnSocialButton) {
+                window.location.href = `game.html?id=${game.id}`;
+            }
+        }, false); // Using bubbling phase
+        
+        // Add specific click handlers for social buttons 
+        const likeBtn = card.querySelector('.like-btn');
+        const shareBtn = card.querySelector('.share-btn');
+        
+        if (likeBtn) {
+            likeBtn.addEventListener('click', function(e) {
+                e.preventDefault(); // Prevent default action
+                e.stopPropagation(); // Prevent card click
+                console.log("游戏卡片点赞按钮被点击: " + game.id);
+                
+                // Toggle like state
+                const isLiked = likeGame(game.id);
+                
+                // Update button state
+                updateLikeButtonState(this, game.id);
+                
+                // Add animation
+                this.classList.add('liked-animation');
+                setTimeout(() => {
+                    this.classList.remove('liked-animation');
+                }, 700);
+            }, true); // Using capture phase to ensure it fires first
+            
+            // 确保点赞按钮显示正确的状态
+            updateLikeButtonState(likeBtn, game.id);
+        }
+        
+        if (shareBtn) {
+            shareBtn.addEventListener('click', function(e) {
+                e.preventDefault(); // Prevent default action
+                e.stopPropagation(); // Prevent card click
+                console.log("游戏卡片分享按钮被点击: " + game.id);
+                
+                const gameObj = getGameById(game.id);
+                if (gameObj) {
+                    openShareModal(gameObj);
+                }
+            }, true); // Using capture phase to ensure it fires first
+        }
         
         return card;
     }
     
     /**
-     * 设置全屏按钮事件
+     * Set up fullscreen button event
      */
     function setupFullscreenButton() {
         const fullscreenBtn = document.getElementById('fullscreen-btn');
@@ -205,77 +259,75 @@ document.addEventListener('DOMContentLoaded', function() {
         fullscreenBtn.addEventListener('click', function() {
             if (gameFrame.requestFullscreen) {
                 gameFrame.requestFullscreen();
-            } else if (gameFrame.mozRequestFullScreen) { // Firefox
-                gameFrame.mozRequestFullScreen();
-            } else if (gameFrame.webkitRequestFullscreen) { // Chrome, Safari, Opera
+            } else if (gameFrame.webkitRequestFullscreen) { // Safari
                 gameFrame.webkitRequestFullscreen();
-            } else if (gameFrame.msRequestFullscreen) { // IE/Edge
+            } else if (gameFrame.msRequestFullscreen) { // IE11
                 gameFrame.msRequestFullscreen();
             }
         });
     }
     
     /**
-     * 设置收藏按钮事件
-     * @param {Object} game 游戏对象
+     * Set up social buttons (like and share)
+     * @param {Object} game Game object
      */
-    function setupFavoriteButton(game) {
-        const favoriteBtn = document.getElementById('favorite-btn');
+    function setupSocialButtons(game) {
+        console.log("设置社交按钮，游戏ID: " + game.id);
         
-        // 检查游戏是否已收藏
-        const favorites = getFavorites();
-        const isFavorite = favorites.includes(game.id);
-        
-        // 更新按钮文本
-        updateFavoriteButtonText(isFavorite);
-        
-        // 添加点击事件
-        favoriteBtn.addEventListener('click', function() {
-            toggleFavorite(game.id);
+        // Setup like button
+        const likeBtn = document.getElementById('like-btn');
+        if (likeBtn) {
+            // 设置游戏ID
+            likeBtn.setAttribute('data-id', game.id);
             
-            // 更新按钮文本
-            const newFavorites = getFavorites();
-            const isNowFavorite = newFavorites.includes(game.id);
-            updateFavoriteButtonText(isNowFavorite);
-        });
-    }
-    
-    /**
-     * 更新收藏按钮文本
-     * @param {boolean} isFavorite 是否已收藏
-     */
-    function updateFavoriteButtonText(isFavorite) {
-        const favoriteBtn = document.getElementById('favorite-btn');
-        favoriteBtn.textContent = isFavorite ? '取消收藏' : '收藏游戏';
-        favoriteBtn.classList.toggle('favorited', isFavorite);
-    }
-    
-    /**
-     * 获取收藏的游戏ID
-     * @returns {Array} 收藏的游戏ID数组
-     */
-    function getFavorites() {
-        const favoritesStr = localStorage.getItem('favorites');
-        return favoritesStr ? JSON.parse(favoritesStr) : [];
-    }
-    
-    /**
-     * 切换游戏收藏状态
-     * @param {string} gameId 游戏ID
-     */
-    function toggleFavorite(gameId) {
-        const favorites = getFavorites();
-        const index = favorites.indexOf(gameId);
-        
-        if (index === -1) {
-            // 添加到收藏
-            favorites.push(gameId);
-        } else {
-            // 从收藏中移除
-            favorites.splice(index, 1);
+            // 立即更新按钮状态
+            updateLikeButtonState(likeBtn, game.id);
+            
+            // 移除所有已有的事件监听器，防止多次绑定
+            const newLikeBtn = likeBtn.cloneNode(true);
+            likeBtn.parentNode.replaceChild(newLikeBtn, likeBtn);
+            
+            // 直接添加点击事件
+            newLikeBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log("游戏页点赞按钮被点击: " + game.id);
+                
+                // 切换点赞状态
+                const isLiked = likeGame(game.id);
+                
+                // 更新按钮状态
+                updateLikeButtonState(this, game.id);
+                
+                // 添加动画效果
+                this.classList.add('liked-animation');
+                setTimeout(() => {
+                    this.classList.remove('liked-animation');
+                }, 700);
+            });
         }
         
-        // 保存收藏到本地存储
-        localStorage.setItem('favorites', JSON.stringify(favorites));
+        // Setup share button
+        const shareBtn = document.getElementById('share-btn');
+        if (shareBtn) {
+            // 设置游戏ID
+            shareBtn.setAttribute('data-id', game.id);
+            
+            // 移除所有已有的事件监听器，防止多次绑定
+            const newShareBtn = shareBtn.cloneNode(true);
+            shareBtn.parentNode.replaceChild(newShareBtn, shareBtn);
+            
+            // 直接添加点击事件
+            newShareBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log("游戏页分享按钮被点击: " + game.id);
+                
+                const gameData = getGameById(game.id);
+                if (gameData) {
+                    openShareModal(gameData);
+                }
+            });
+        }
     }
 }); 

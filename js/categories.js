@@ -1,152 +1,162 @@
 /**
- * 分类页面JavaScript文件
- * 处理游戏分类和筛选逻辑
+ * Categories page JavaScript file
+ * Handles game categorization and filtering logic
  */
 document.addEventListener('DOMContentLoaded', function() {
-    // 获取DOM元素
+    // Get DOM elements
     const categoryNav = document.getElementById('category-nav');
     const currentCategoryTitle = document.getElementById('current-category');
     const gameGrid = document.getElementById('category-game-grid');
     const searchInput = document.getElementById('game-search');
     const sortSelect = document.getElementById('sort-games');
     
-    // 当前选中的分类和排序方式
+    // Current selected category and sort method
     let currentCategory = 'all';
     let currentSort = 'name';
     
-    // 初始化分类导航
+    // Initialize category navigation
     initCategoryNav();
     
-    // 加载所有游戏
+    // Load all games
     loadGames();
     
-    // 添加搜索事件
+    // Add search event
     searchInput.addEventListener('input', handleSearch);
     
-    // 添加排序事件
+    // Add sort event
     sortSelect.addEventListener('change', handleSort);
     
     /**
-     * 初始化分类导航
+     * Initialize category navigation
      */
     function initCategoryNav() {
         try {
-            // 清空现有导航，以防重复加载
+            // Clear existing navigation to prevent duplicate loading
             categoryNav.innerHTML = '';
             
-            // 添加"全部"分类
+            // Add "All" category
             const allCategoryItem = document.createElement('li');
-            allCategoryItem.innerHTML = '<a href="#" class="active" data-category="all">全部游戏</a>';
+            allCategoryItem.innerHTML = '<a href="#" class="active" data-category="all">All Games</a>';
             categoryNav.appendChild(allCategoryItem);
             
-            // 获取所有分类
+            // Get all categories
             const categories = getAllCategories();
             
-            // 对类别进行排序，确保一致的显示顺序
+            // Sort categories to ensure consistent display order
             const sortedCategories = [...categories].sort();
             
-            // 为每个分类创建导航项
+            // Create navigation item for each category
             sortedCategories.forEach(category => {
                 const categoryItem = document.createElement('li');
-                categoryItem.innerHTML = `<a href="#" data-category="${category}">${category}</a>`;
+                categoryItem.innerHTML = `<a href="#" data-category="${category}">${translateCategory(category)}</a>`;
                 categoryNav.appendChild(categoryItem);
             });
             
-            // 添加分类点击事件
+            // Add category click event
             categoryNav.addEventListener('click', handleCategoryClick);
             
-            // 添加统计信息
+            // Add statistics information
             updateCategoryStats();
         } catch (error) {
-            console.error('初始化分类导航时出错:', error);
-            categoryNav.innerHTML = '<li><p>加载分类失败，请刷新页面重试</p></li>';
+            console.error('Error initializing category navigation:', error);
+            categoryNav.innerHTML = '<li><p>Failed to load categories. Please refresh the page and try again.</p></li>';
         }
     }
     
     /**
-     * 更新分类统计信息
+     * Translate category names from Chinese to English
+     * @param {string} category Category name
+     * @returns {string} Translated category name
+     */
+    function translateCategory(category) {
+        // Category names are already in English, so just return the original
+        return category;
+    }
+    
+    /**
+     * Update category statistics
      */
     function updateCategoryStats() {
         const allGames = getAllGames();
         const categories = getAllCategories();
         
-        // 获取所有链接
+        // Get all links
         const links = categoryNav.querySelectorAll('a');
         
-        // 更新"全部"分类的统计
-        links[0].innerHTML = `全部游戏 <span class="category-count">(${allGames.length})</span>`;
+        // Update "All" category statistics
+        links[0].innerHTML = `All Games <span class="category-count">(${allGames.length})</span>`;
         
-        // 更新每个分类的统计
+        // Update statistics for each category
         categories.forEach((category, index) => {
             const gamesInCategory = getGamesByCategory(category);
-            const link = links[index + 1]; // +1 因为第一个是"全部"
+            const link = links[index + 1]; // +1 because the first one is "All"
             if (link && link.getAttribute('data-category') === category) {
-                link.innerHTML = `${category} <span class="category-count">(${gamesInCategory.length})</span>`;
+                link.innerHTML = `${translateCategory(category)} <span class="category-count">(${gamesInCategory.length})</span>`;
             }
         });
     }
     
     /**
-     * 处理分类点击事件
-     * @param {Event} event 事件对象
+     * Handle category click event
+     * @param {Event} event Event object
      */
     function handleCategoryClick(event) {
         event.preventDefault();
         
-        // 确保点击的是链接
+        // Ensure a link was clicked
         if (event.target.tagName === 'A') {
-            // 获取分类
+            // Get category
             const category = event.target.getAttribute('data-category');
             
-            // 更新当前分类
+            // Update current category
             currentCategory = category;
             
-            // 更新UI
+            // Update UI
             updateActiveCategoryLink(event.target);
             updateCategoryTitle(category);
             
-            // 加载游戏
+            // Load games
             loadGames();
             
-            // 滚动到游戏列表顶部
+            // Scroll to top of game list
             document.querySelector('.category-games').scrollIntoView({ behavior: 'smooth' });
         }
     }
     
     /**
-     * 更新活动分类链接
-     * @param {Element} activeLink 活动链接元素
+     * Update active category link
+     * @param {Element} activeLink Active link element
      */
     function updateActiveCategoryLink(activeLink) {
-        // 移除所有活动状态
+        // Remove all active states
         const links = categoryNav.querySelectorAll('a');
         links.forEach(link => link.classList.remove('active'));
         
-        // 添加活动状态到当前链接
+        // Add active state to current link
         activeLink.classList.add('active');
     }
     
     /**
-     * 更新分类标题
-     * @param {string} category 分类名称
+     * Update category title
+     * @param {string} category Category name
      */
     function updateCategoryTitle(category) {
         if (category === 'all') {
-            currentCategoryTitle.textContent = '所有游戏';
+            currentCategoryTitle.textContent = 'All Games';
         } else {
-            currentCategoryTitle.textContent = category;
+            currentCategoryTitle.textContent = translateCategory(category);
         }
     }
     
     /**
-     * 处理搜索事件
+     * Handle search event
      */
     function handleSearch() {
         loadGames();
     }
     
     /**
-     * 处理排序事件
+     * Handle sort event
      */
     function handleSort() {
         currentSort = sortSelect.value;
@@ -154,74 +164,74 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     /**
-     * 加载游戏
+     * Load games
      */
     function loadGames() {
         try {
-            // 获取搜索关键词
+            // Get search keyword
             const searchTerm = searchInput.value.trim();
             
-            // 获取游戏数据
+            // Get game data
             let games = [];
             
             if (searchTerm) {
-                // 搜索模式
+                // Search mode
                 games = searchGames(searchTerm);
                 
-                // 如果有分类筛选，进一步筛选
+                // If there is category filtering, filter further
                 if (currentCategory !== 'all') {
                     games = games.filter(game => game.category === currentCategory);
                 }
             } else {
-                // 非搜索模式，根据分类获取游戏
+                // Non-search mode, get games based on category
                 games = getGamesFiltered(currentCategory, currentSort);
             }
             
-            // 渲染游戏
+            // Render games
             renderGames(games);
             
-            // 更新游戏计数
+            // Update game count
             updateGameCount(games.length);
         } catch (error) {
-            console.error('加载游戏时出错:', error);
-            gameGrid.innerHTML = '<p class="error-message">加载游戏失败，请刷新页面重试</p>';
+            console.error('Error loading games:', error);
+            gameGrid.innerHTML = '<p class="error-message">Failed to load games. Please refresh the page and try again.</p>';
         }
     }
     
     /**
-     * 更新游戏计数
-     * @param {number} count 游戏数量
+     * Update game count
+     * @param {number} count Game count
      */
     function updateGameCount(count) {
-        let categoryText = currentCategory === 'all' ? '所有游戏' : currentCategory;
+        let categoryText = currentCategory === 'all' ? 'All Games' : translateCategory(currentCategory);
         
         if (searchInput.value.trim()) {
-            categoryText += ` (搜索结果)`;
+            categoryText += ` (Search Results)`;
         }
         
-        currentCategoryTitle.textContent = `${categoryText} - ${count} 款游戏`;
+        currentCategoryTitle.textContent = `${categoryText} - ${count} Games`;
     }
     
     /**
-     * 渲染游戏
-     * @param {Array} games 游戏数组
+     * Render games
+     * @param {Array} games Games array
      */
     function renderGames(games) {
-        // 清空游戏网格
+        // Clear game grid
         gameGrid.innerHTML = '';
         
-        // 如果没有游戏
+        // If there are no games
         if (games.length === 0) {
             const searchTerm = searchInput.value.trim();
             if (searchTerm) {
-                gameGrid.innerHTML = `<p class="no-games">没有找到与"${searchTerm}"相关的游戏</p>`;
+                gameGrid.innerHTML = `<p class="no-games">No games found related to "${searchTerm}"</p>`;
             } else {
-                gameGrid.innerHTML = `<p class="no-games">当前分类下暂无游戏</p>`;
+                gameGrid.innerHTML = `<p class="no-games">No games available in this category</p>`;
             }
             return;
         }
         
-        // 创建游戏卡片
+        // Create game cards
         games.forEach(game => {
             const gameCard = createGameCard(game);
             gameGrid.appendChild(gameCard);
@@ -229,41 +239,88 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     /**
-     * 创建游戏卡片
-     * @param {Object} game 游戏对象
-     * @returns {Element} 游戏卡片元素
+     * Create game card
+     * @param {Object} game Game object
+     * @returns {Element} Game card element
      */
     function createGameCard(game) {
         const card = document.createElement('div');
         card.className = 'game-card';
         card.setAttribute('data-id', game.id);
         
-        // 构建卡片HTML
+        // Build card HTML
         card.innerHTML = `
             <div class="game-thumbnail">
                 <img src="${game.thumbnail}" alt="${game.name}" onerror="this.src='images/placeholder.jpg'">
                 <div class="game-overlay">
-                    <a href="game.html?id=${game.id}" class="play-btn">开始游戏</a>
+                    <a href="game.html?id=${game.id}" class="play-btn">Play Now</a>
                 </div>
             </div>
             <div class="game-info">
                 <h3>${game.name}</h3>
                 <div class="game-meta">
-                    <span class="game-category">${game.category}</span>
-                    <span class="game-rating">
-                        <i class="star-icon">★</i> ${game.rating.toFixed(1)}
-                    </span>
+                    <span class="game-category">${translateCategory(game.category)}</span>
+                    <span class="game-rating">★ ${game.rating.toFixed(1)}</span>
+                </div>
+                <div class="social-actions">
+                    <button class="like-btn" data-id="${game.id}">
+                        <i>♡</i> <span class="like-count">${game.likes}</span>
+                    </button>
+                    <button class="share-btn" data-id="${game.id}">
+                        <i>↗</i> Share
+                    </button>
                 </div>
             </div>
         `;
         
-        // 添加点击事件
+        // Add click event
         card.addEventListener('click', function(e) {
-            // 如果点击的不是"开始游戏"按钮，则整个卡片可点击
-            if (!e.target.classList.contains('play-btn')) {
+            // Check if the click was on a social button or its child
+            const isOnSocialButton = e.target.closest('.like-btn') || e.target.closest('.share-btn');
+            
+            // If not clicking on the play button or social buttons, make the whole card clickable
+            if (!e.target.classList.contains('play-btn') && !isOnSocialButton) {
                 window.location.href = `game.html?id=${game.id}`;
             }
         });
+        
+        // Add specific click handlers for social buttons 
+        const likeBtn = card.querySelector('.like-btn');
+        const shareBtn = card.querySelector('.share-btn');
+        
+        if (likeBtn) {
+            likeBtn.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent card click
+                const gameId = this.getAttribute('data-id');
+                
+                // Toggle like state
+                const isLiked = likeGame(gameId);
+                
+                // Update button state
+                updateLikeButtonState(this, gameId);
+                
+                // Add animation
+                this.classList.add('liked-animation');
+                setTimeout(() => {
+                    this.classList.remove('liked-animation');
+                }, 700);
+            });
+            
+            // 确保点赞按钮显示正确的状态
+            updateLikeButtonState(likeBtn, game.id);
+        }
+        
+        if (shareBtn) {
+            shareBtn.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent card click
+                const gameId = this.getAttribute('data-id');
+                const game = getGameById(gameId);
+                
+                if (game) {
+                    openShareModal(game);
+                }
+            });
+        }
         
         return card;
     }

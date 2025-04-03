@@ -22,6 +22,16 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
     
+    // 跟踪游戏页面访问
+    if (typeof trackEvent === 'function') {
+        trackEvent('Games', 'View', game.name);
+    } else if (typeof gtag === 'function') {
+        gtag('event', 'View', {
+            'event_category': 'Games',
+            'event_label': game.name
+        });
+    }
+    
     // Update page title
     document.title = `${game.name} - Game Collection`;
     
@@ -89,16 +99,46 @@ document.addEventListener('DOMContentLoaded', function() {
             if (loadingDiv.parentNode) {
                 loadingDiv.parentNode.removeChild(loadingDiv);
             }
+            
+            // 跟踪游戏加载成功
+            if (typeof trackEvent === 'function') {
+                trackEvent('Games', 'Load Success', game.name);
+            } else if (typeof gtag === 'function') {
+                gtag('event', 'Load Success', {
+                    'event_category': 'Games',
+                    'event_label': game.name
+                });
+            }
         };
         
         // Listen for iframe load error
         iframe.onerror = function() {
+            // 跟踪游戏加载失败
+            if (typeof trackEvent === 'function') {
+                trackEvent('Games', 'Load Error', game.name);
+            } else if (typeof gtag === 'function') {
+                gtag('event', 'Load Error', {
+                    'event_category': 'Games',
+                    'event_label': game.name
+                });
+            }
+            
             handleIframeError(game, frameContainer, loadingDiv);
         };
         
         // Set timeout handling in case iframe takes too long to load
         setTimeout(function() {
             if (document.querySelector('.game-loading')) {
+                // 跟踪游戏加载超时
+                if (typeof trackEvent === 'function') {
+                    trackEvent('Games', 'Load Timeout', game.name);
+                } else if (typeof gtag === 'function') {
+                    gtag('event', 'Load Timeout', {
+                        'event_category': 'Games',
+                        'event_label': game.name
+                    });
+                }
+                
                 handleIframeError(game, frameContainer, loadingDiv);
             }
         }, 10000); // Check after 10 seconds
@@ -257,6 +297,16 @@ document.addEventListener('DOMContentLoaded', function() {
         const gameFrame = document.getElementById('game-frame');
         
         fullscreenBtn.addEventListener('click', function() {
+            // 跟踪全屏模式
+            if (typeof trackEvent === 'function') {
+                trackEvent('Games', 'Fullscreen', game.name);
+            } else if (typeof gtag === 'function') {
+                gtag('event', 'Fullscreen', {
+                    'event_category': 'Games',
+                    'event_label': game.name
+                });
+            }
+            
             if (gameFrame.requestFullscreen) {
                 gameFrame.requestFullscreen();
             } else if (gameFrame.webkitRequestFullscreen) { // Safari

@@ -4,6 +4,22 @@
  */
 
 /**
+ * Track event with Google Analytics
+ * @param {string} eventCategory Event category
+ * @param {string} eventAction Event action
+ * @param {string} eventLabel Event label (optional)
+ */
+function trackEvent(eventCategory, eventAction, eventLabel) {
+    if (typeof gtag === 'function') {
+        console.log(`跟踪事件: ${eventCategory} - ${eventAction} - ${eventLabel}`);
+        gtag('event', eventAction, {
+            'event_category': eventCategory,
+            'event_label': eventLabel
+        });
+    }
+}
+
+/**
  * Initialize social features
  */
 function initSocialFeatures() {
@@ -26,8 +42,14 @@ function initSocialFeatures() {
                 e.stopPropagation();
                 console.log("点赞按钮被点击: " + gameId);
                 
+                // 获取游戏信息用于跟踪
+                const game = getGameById(gameId);
+                
                 // 切换点赞状态
                 const isLiked = likeGame(gameId);
+                
+                // 跟踪事件
+                trackEvent('Social', isLiked ? 'Like' : 'Unlike', game ? game.name : gameId);
                 
                 // 更新按钮状态
                 updateLikeButtonState(this, gameId);
@@ -53,6 +75,8 @@ function initSocialFeatures() {
                 
                 const game = getGameById(gameId);
                 if (game) {
+                    // 跟踪分享事件
+                    trackEvent('Social', 'Share Modal Open', game.name);
                     openShareModal(game);
                 }
             });
@@ -239,6 +263,9 @@ function shareGame(game, platform) {
     const gameUrl = `${window.location.origin}/game.html?id=${game.id}`;
     const title = `Play ${game.name} - Fun HTML5 Games`;
     const description = game.description.substring(0, 100) + '...';
+    
+    // 跟踪分享事件
+    trackEvent('Social', 'Share', `${game.name} - ${platform}`);
     
     // Handle different platforms
     switch(platform) {
